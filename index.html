@@ -12,6 +12,7 @@
       --card: #ffffff;
       --text: #0f172a;
       --border: #cbd5e1;
+      --watermark: #94a3b8;
     }
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -29,6 +30,7 @@
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
       max-width: 520px;
       width: 100%;
+      position: relative;
     }
     h2 {
       margin: 0 0 16px 0;
@@ -92,6 +94,24 @@
       justify-content: center;
       margin-top: 16px;
     }
+    .ref-label {
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      fill: #475569;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+    .watermark {
+      margin-top: 24px;
+      padding-top: 12px;
+      border-top: 1px dashed #e2e8f0;
+      font-size: 0.78rem;
+      color: var(--watermark);
+      text-align: left;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
   </style>
 </head>
 <body>
@@ -151,18 +171,30 @@
   </div>
 
   <div class="pipe-view">
-    <svg width="220" height="220" viewBox="0 0 220 220">
+    <svg width="260" height="260" viewBox="0 0 260 260">
+      <!-- Referencias horarias -->
+      <text x="130" y="16" class="ref-label">0-12</text>
+      <text x="242" y="130" class="ref-label">03</text>
+      <text x="130" y="244" class="ref-label">06</text>
+      <text x="18" y="130" class="ref-label">09</text>
+
       <!-- Sección cañería -->
-      <circle cx="110" cy="110" r="82" stroke="#0284c7" stroke-width="12" fill="#f8fafc" />
-      <!-- Cuadrantes de referencia (12, 3, 6, 9) -->
-      <line x1="110" y1="20" x2="110" y2="34" stroke="#64748b" stroke-width="2" />
-      <line x1="110" y1="186" x2="110" y2="200" stroke="#64748b" stroke-width="2" />
-      <line x1="20" y1="110" x2="34" y2="110" stroke="#64748b" stroke-width="2" />
-      <line x1="186" y1="110" x2="200" y2="110" stroke="#64748b" stroke-width="2" />
-      <!-- Aguja de posición -->
-      <line id="needle" x1="110" y1="110" x2="192" y2="110" stroke="#ef4444" stroke-width="3" stroke-linecap="round" />
-      <circle cx="110" cy="110" r="4.5" fill="#0f172a" />
+      <circle cx="130" cy="130" r="82" stroke="#0284c7" stroke-width="12" fill="#f8fafc" />
+
+      <!-- Marcas de cuadrante (12, 3, 6, 9) -->
+      <line x1="130" y1="40" x2="130" y2="54" stroke="#64748b" stroke-width="2" />
+      <line x1="130" y1="206" x2="130" y2="220" stroke="#64748b" stroke-width="2" />
+      <line x1="40" y1="130" x2="54" y2="130" stroke="#64748b" stroke-width="2" />
+      <line x1="206" y1="130" x2="220" y2="130" stroke="#64748b" stroke-width="2" />
+
+      <!-- Aguja indicadora -->
+      <line id="needle" x1="130" y1="130" x2="212" y2="130" stroke="#ef4444" stroke-width="3" stroke-linecap="round" />
+      <circle cx="130" cy="130" r="4.5" fill="#0f172a" />
     </svg>
+  </div>
+
+  <div class="watermark">
+    Autor: Emmanuel Benitez
   </div>
 </div>
 
@@ -201,8 +233,8 @@
     document.getElementById("lbl-clock").innerText = `${hhStr}:${mmStr}`;
 
     const rad = (deg - 90) * (Math.PI / 180);
-    const x2 = 110 + 82 * Math.cos(rad);
-    const y2 = 110 + 82 * Math.sin(rad);
+    const x2 = 130 + 82 * Math.cos(rad);
+    const y2 = 130 + 82 * Math.sin(rad);
 
     const needle = document.getElementById("needle");
     needle.setAttribute("x2", x2);
