@@ -236,25 +236,31 @@
     <p>Perímetro total de la sección: <strong id="lbl-perim">1915.11 mm</strong></p>
   </div>
 
+  <!-- Vista gráfica circular corregida -->
   <div class="pipe-view">
     <svg width="260" height="260" viewBox="0 0 260 260">
+      <!-- Rótulos de posición horaria -->
       <text x="130" y="16" class="ref-label">0-12</text>
       <text x="242" y="130" class="ref-label">03</text>
       <text x="130" y="244" class="ref-label">06</text>
       <text x="18" y="130" class="ref-label">09</text>
 
+      <!-- Perfil de la tubería -->
       <circle cx="130" cy="130" r="82" stroke="#0284c7" stroke-width="12" fill="#f8fafc" />
 
+      <!-- Marcas de los cuatro cuadrantes principales -->
       <line x1="130" y1="40" x2="130" y2="54" stroke="#64748b" stroke-width="2" />
       <line x1="130" y1="206" x2="130" y2="220" stroke="#64748b" stroke-width="2" />
-      <line x1="40" y1="130" x2="54" y1="130" stroke="#64748b" stroke-width="2" />
+      <line x1="40" y1="130" x2="54" y2="130" stroke="#64748b" stroke-width="2" />
       <line x1="206" y1="130" x2="220" y2="130" stroke="#64748b" stroke-width="2" />
 
+      <!-- Aguja de posición actual -->
       <line id="needle" x1="130" y1="130" x2="212" y2="130" stroke="#ef4444" stroke-width="3" stroke-linecap="round" />
       <circle cx="130" cy="130" r="4.5" fill="#0f172a" />
     </svg>
   </div>
 
+  <!-- Marca de agua de autor -->
   <div class="watermark">
     Autor: Emmanuel Benitez
   </div>
@@ -345,7 +351,6 @@
     updateGraphicsAndLabels(degrees, arc, perimeter, hours, minutes);
   }
 
-  // Funciones de incremento/decremento táctil
   function stepHour(delta) {
     let el = document.getElementById("hours");
     let val = (parseInt(el.value) || 0) + delta;
