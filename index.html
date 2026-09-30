@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculador Bidireccional: Posición Horaria ➔ mm</title>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --accent: #0284c7;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --border: #cbd5e1;
+    }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 24px 16px;
+      margin: 0;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 24px 28px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+      max-width: 520px;
+      width: 100%;
+    }
+    h2 {
+      margin: 0 0 16px 0;
+      color: var(--primary);
+      font-size: 1.25rem;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 10px;
+    }
+    .section-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #64748b;
+      margin: 14px 0 8px 0;
+      letter-spacing: 0.05em;
+    }
+    .field {
+      margin-bottom: 12px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.88rem;
+      margin-bottom: 5px;
+    }
+    select, input {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      box-sizing: border-box;
+      background: #fff;
+    }
+    select:focus, input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+    .row {
+      display: flex;
+      gap: 12px;
+    }
+    .results {
+      background: #f1f5f9;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-top: 16px;
+      border-left: 4px solid var(--accent);
+    }
+    .results p {
+      margin: 6px 0;
+      font-size: 0.92rem;
+    }
+    .results strong {
+      color: var(--primary);
+      font-size: 1rem;
+    }
+    .pipe-view {
+      display: flex;
+      justify-content: center;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Conversor Horario ⇄ Longitud de Arco</h2>
+
+  <div class="field">
+    <label for="nps">Diámetro Nominal (NPS):</label>
+    <select id="nps" onchange="onPipeChange()">
+      <option value="4">4" (OD: 114.3 mm)</option>
+      <option value="6">6" (OD: 168.3 mm)</option>
+      <option value="8">8" (OD: 219.1 mm)</option>
+      <option value="10">10" (OD: 273.1 mm)</option>
+      <option value="12">12" (OD: 323.8 mm)</option>
+      <option value="16">16" (OD: 406.4 mm)</option>
+      <option value="20">20" (OD: 508.0 mm)</option>
+      <option value="24" selected>24" (OD: 609.6 mm)</option>
+      <option value="30">30" (OD: 762.0 mm)</option>
+      <option value="36">36" (OD: 914.4 mm)</option>
+      <option value="42">42" (OD: 1066.8 mm)</option>
+      <option value="48">48" (OD: 1219.2 mm)</option>
+      <option value="custom">Personalizado (ingresar OD)...</option>
+    </select>
+  </div>
+
+  <div class="field" id="custom-od-box" style="display: none;">
+    <label for="custom-od">Diámetro Exterior Real (OD en mm):</label>
+    <input type="number" id="custom-od" value="609.6" step="0.1" oninput="onPipeChange()">
+  </div>
+
+  <div class="section-title">Entrada 1: Por Posición Horaria</div>
+  <div class="row">
+    <div class="field" style="flex: 1;">
+      <label for="hours">Hora (0 - 12):</label>
+      <input type="number" id="hours" min="0" max="12" value="3" oninput="calcFromClock()">
+    </div>
+    <div class="field" style="flex: 1;">
+      <label for="minutes">Minutos (0 - 59):</label>
+      <input type="number" id="minutes" min="0" max="59" value="0" oninput="calcFromClock()">
+    </div>
+  </div>
+
+  <div class="section-title">Entrada 2: Por Distancia de Arco Acumulada</div>
+  <div class="field">
+    <label for="arc-input">Longitud en mm (sentido horario desde 12:00):</label>
+    <input type="number" id="arc-input" step="0.1" placeholder="Ej: 478.8" oninput="calcFromArc()">
+  </div>
+
+  <div class="results">
+    <p>Posición horaria formateada: <strong id="lbl-clock">03:00</strong></p>
+    <p>Ángulo de giro ($\theta$): <strong id="lbl-deg">90.0°</strong></p>
+    <p>Longitud de arco acumulada: <strong id="lbl-arc">478.78 mm</strong></p>
+    <p>Perímetro total de la sección: <strong id="lbl-perim">1915.11 mm</strong></p>
+  </div>
+
+  <div class="pipe-view">
+    <svg width="220" height="220" viewBox="0 0 220 220">
+      <!-- Sección cañería -->
+      <circle cx="110" cy="110" r="82" stroke="#0284c7" stroke-width="12" fill="#f8fafc" />
+      <!-- Cuadrantes de referencia (12, 3, 6, 9) -->
+      <line x1="110" y1="20" x2="110" y2="34" stroke="#64748b" stroke-width="2" />
+      <line x1="110" y1="186" x2="110" y2="200" stroke="#64748b" stroke-width="2" />
+      <line x1="20" y1="110" x2="34" y2="110" stroke="#64748b" stroke-width="2" />
+      <line x1="186" y1="110" x2="200" y2="110" stroke="#64748b" stroke-width="2" />
+      <!-- Aguja de posición -->
+      <line id="needle" x1="110" y1="110" x2="192" y2="110" stroke="#ef4444" stroke-width="3" stroke-linecap="round" />
+      <circle cx="110" cy="110" r="4.5" fill="#0f172a" />
+    </svg>
+  </div>
+</div>
+
+<script>
+  const npsODMap = {
+    "4": 114.3, "6": 168.3, "8": 219.1, "10": 273.1,
+    "12": 323.8, "16": 406.4, "20": 508.0, "24": 609.6,
+    "30": 762.0, "36": 914.4, "42": 1066.8, "48": 1219.2
+  };
+
+  function getOD() {
+    const sel = document.getElementById("nps").value;
+    return (sel === "custom") 
+      ? (parseFloat(document.getElementById("custom-od").value) || 0)
+      : npsODMap[sel];
+  }
+
+  function onPipeChange() {
+    const sel = document.getElementById("nps").value;
+    const box = document.getElementById("custom-od-box");
+    box.style.display = (sel === "custom") ? "block" : "none";
+    if (sel !== "custom") {
+      document.getElementById("custom-od").value = npsODMap[sel];
+    }
+    // Mantiene la posición horaria actual y recalcula los mm correspondientes al nuevo diámetro
+    calcFromClock();
+  }
+
+  function updateGraphicsAndLabels(deg, arcMm, totalPerim, hh, mm) {
+    document.getElementById("lbl-deg").innerText = deg.toFixed(1) + "°";
+    document.getElementById("lbl-arc").innerText = arcMm.toFixed(2) + " mm";
+    document.getElementById("lbl-perim").innerText = totalPerim.toFixed(2) + " mm";
+
+    const hhStr = String(Math.floor(hh)).padStart(2, '0');
+    const mmStr = String(Math.floor(mm)).padStart(2, '0');
+    document.getElementById("lbl-clock").innerText = `${hhStr}:${mmStr}`;
+
+    // Posición del puntero SVG (0° / 12:00 arriba)
+    const rad = (deg - 90) * (Math.PI / 180);
+    const x2 = 110 + 82 * Math.cos(rad);
+    const y2 = 110 + 82 * Math.sin(rad);
+
+    const needle = document.getElementById("needle");
+    needle.setAttribute("x2", x2);
+    needle.setAttribute("y2", y2);
+  }
+
+  // Dirección: Horas ➔ mm
+  function calcFromClock() {
+    const od = getOD();
+    const perimeter = Math.PI * od;
+
+    let hh = parseFloat(document.getElementById("hours").value) || 0;
+    let mm = parseFloat(document.getElementById("minutes").value) || 0;
+
+    let decHours = (hh % 12) + (mm / 60);
+    let degrees = decHours * 30; // 360° / 12h
+    let arc = (degrees / 360) * perimeter;
+
+    document.getElementById("arc-input").value = arc.toFixed(2);
+    updateGraphicsAndLabels(degrees, arc, perimeter, hh, mm);
+  }
+
+  // Dirección: mm ➔ Horas
+  function calcFromArc() {
+    const od = getOD();
+    const perimeter = Math.PI * od;
+    let arc = parseFloat(document.getElementById("arc-input").value) || 0;
+
+    if (perimeter <= 0) return;
+
+    // Normalizar si se ingresa un valor mayor a una vuelta completa
+    arc = arc % perimeter;
+    if (arc < 0) arc += perimeter;
+
+    let degrees = (arc / perimeter) * 360;
+    let totalDecHours = (degrees / 30); // 30° por hora
+
+    let hours = Math.floor(totalDecHours);
+    let minutes = Math.round((totalDecHours - hours) * 60);
+
+    if (minutes === 60) {
+      hours = (hours + 1) % 12;
+      minutes = 0;
+    }
+
+    document.getElementById("hours").value = hours;
+    document.getElementById("minutes").value = minutes;
+
+    updateGraphicsAndLabels(degrees, arc, perimeter, hours, minutes);
+  }
+
+  // Inicialización
+  calcFromClock();
+</script>
+
+</body>
+</html>
