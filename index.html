@@ -56,19 +56,69 @@
       font-size: 0.88rem;
       margin-bottom: 5px;
     }
-    select, input {
+    select {
       width: 100%;
-      padding: 9px 12px;
+      padding: 10px 12px;
       border: 1px solid var(--border);
       border-radius: 6px;
       font-size: 0.95rem;
       box-sizing: border-box;
       background: #fff;
     }
-    select:focus, input:focus {
+    select:focus {
       outline: none;
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+    /* Contenedor Stepper táctil */
+    .stepper {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+    }
+    .stepper input {
+      flex: 1;
+      border: none;
+      text-align: center;
+      font-size: 1.05rem;
+      font-weight: 600;
+      padding: 10px 0;
+      width: 100%;
+      box-sizing: border-box;
+      color: var(--text);
+      -moz-appearance: textfield;
+    }
+    .stepper input::-webkit-outer-spin-button,
+    .stepper input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .stepper input:focus {
+      outline: none;
+    }
+    .btn-step {
+      background: #f1f5f9;
+      border: none;
+      color: var(--primary);
+      font-size: 1.25rem;
+      font-weight: 700;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s ease;
+    }
+    .btn-step:hover {
+      background: #e2e8f0;
+    }
+    .btn-step:active {
+      background: #cbd5e1;
     }
     .row {
       display: flex;
@@ -142,25 +192,41 @@
 
   <div class="field" id="custom-od-box" style="display: none;">
     <label for="custom-od">Diámetro Exterior Real (OD en mm):</label>
-    <input type="number" id="custom-od" value="609.6" step="0.1" oninput="onPipeChange()">
+    <div class="stepper">
+      <button class="btn-step" onclick="stepVal('custom-od', -10, onPipeChange)">−</button>
+      <input type="number" id="custom-od" value="609.6" step="0.1" oninput="onPipeChange()">
+      <button class="btn-step" onclick="stepVal('custom-od', 10, onPipeChange)">+</button>
+    </div>
   </div>
 
   <div class="section-title">Entrada 1: Por Posición Horaria</div>
   <div class="row">
     <div class="field" style="flex: 1;">
       <label for="hours">Hora (0 - 12):</label>
-      <input type="number" id="hours" min="0" max="12" value="3" oninput="calcFromClock()">
+      <div class="stepper">
+        <button class="btn-step" onclick="stepHour(-1)">−</button>
+        <input type="number" id="hours" min="0" max="12" value="3" oninput="calcFromClock()">
+        <button class="btn-step" onclick="stepHour(1)">+</button>
+      </div>
     </div>
     <div class="field" style="flex: 1;">
       <label for="minutes">Minutos (0 - 59):</label>
-      <input type="number" id="minutes" min="0" max="59" value="0" oninput="calcFromClock()">
+      <div class="stepper">
+        <button class="btn-step" onclick="stepMin(-5)">−</button>
+        <input type="number" id="minutes" min="0" max="59" value="0" oninput="calcFromClock()">
+        <button class="btn-step" onclick="stepMin(5)">+</button>
+      </div>
     </div>
   </div>
 
   <div class="section-title">Entrada 2: Por Distancia de Arco Acumulada</div>
   <div class="field">
     <label for="arc-input">Longitud en mm (sentido horario desde 12:00):</label>
-    <input type="number" id="arc-input" step="0.1" placeholder="Ej: 478.8" oninput="calcFromArc()">
+    <div class="stepper">
+      <button class="btn-step" onclick="stepArc(-10)">−</button>
+      <input type="number" id="arc-input" step="0.1" placeholder="Ej: 478.8" oninput="calcFromArc()">
+      <button class="btn-step" onclick="stepArc(10)">+</button>
+    </div>
   </div>
 
   <div class="results">
@@ -172,22 +238,18 @@
 
   <div class="pipe-view">
     <svg width="260" height="260" viewBox="0 0 260 260">
-      <!-- Referencias horarias -->
       <text x="130" y="16" class="ref-label">0-12</text>
       <text x="242" y="130" class="ref-label">03</text>
       <text x="130" y="244" class="ref-label">06</text>
       <text x="18" y="130" class="ref-label">09</text>
 
-      <!-- Sección cañería -->
       <circle cx="130" cy="130" r="82" stroke="#0284c7" stroke-width="12" fill="#f8fafc" />
 
-      <!-- Marcas de cuadrante (12, 3, 6, 9) -->
       <line x1="130" y1="40" x2="130" y2="54" stroke="#64748b" stroke-width="2" />
       <line x1="130" y1="206" x2="130" y2="220" stroke="#64748b" stroke-width="2" />
-      <line x1="40" y1="130" x2="54" y2="130" stroke="#64748b" stroke-width="2" />
+      <line x1="40" y1="130" x2="54" y1="130" stroke="#64748b" stroke-width="2" />
       <line x1="206" y1="130" x2="220" y2="130" stroke="#64748b" stroke-width="2" />
 
-      <!-- Aguja indicadora -->
       <line id="needle" x1="130" y1="130" x2="212" y2="130" stroke="#ef4444" stroke-width="3" stroke-linecap="round" />
       <circle cx="130" cy="130" r="4.5" fill="#0f172a" />
     </svg>
@@ -281,6 +343,41 @@
     document.getElementById("minutes").value = minutes;
 
     updateGraphicsAndLabels(degrees, arc, perimeter, hours, minutes);
+  }
+
+  // Funciones de incremento/decremento táctil
+  function stepHour(delta) {
+    let el = document.getElementById("hours");
+    let val = (parseInt(el.value) || 0) + delta;
+    if (val < 0) val = 11;
+    if (val > 12) val = 1;
+    el.value = val;
+    calcFromClock();
+  }
+
+  function stepMin(delta) {
+    let el = document.getElementById("minutes");
+    let val = (parseInt(el.value) || 0) + delta;
+    if (val < 0) val = 55;
+    if (val >= 60) val = 0;
+    el.value = val;
+    calcFromClock();
+  }
+
+  function stepArc(delta) {
+    let el = document.getElementById("arc-input");
+    let val = (parseFloat(el.value) || 0) + delta;
+    if (val < 0) val = 0;
+    el.value = val.toFixed(1);
+    calcFromArc();
+  }
+
+  function stepVal(id, delta, cb) {
+    let el = document.getElementById(id);
+    let val = (parseFloat(el.value) || 0) + delta;
+    if (val < 0) val = 0;
+    el.value = val.toFixed(1);
+    if (cb) cb();
   }
 
   calcFromClock();
